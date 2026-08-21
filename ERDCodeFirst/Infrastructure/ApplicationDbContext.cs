@@ -27,21 +27,89 @@ namespace ERDCodeFirst.Infrastructure
         public DbSet<Orders> Orders { get; set; }
         public DbSet<ShippingAddress> ShippingAddresses { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<BookDetails>()
+                .HasKey(bd => bd.BookId);
+
+            modelBuilder.Entity<Books>()
+                .HasOne(b => b.BookDetails)
+                .WithOne(bd => bd.Books)
+                .HasForeignKey<BookDetails>(bd => bd.BookId);
+
+            modelBuilder.Entity<ShippingAddress>()
+                .HasKey(bd => bd.CustomerId);
+            modelBuilder.Entity<Customers>()
+                .HasOne(b => b.ShippingAddress)
+                .WithOne(bd => bd.Customers)
+                .HasForeignKey<ShippingAddress>(bd => bd.CustomerId);
 
             modelBuilder.Entity<BookAuthors>()
                 .HasKey(ba => new { ba.BookID, ba.AuthorID });
-            modelBuilder.Entity<BookCategories>()
-                .HasKey(bc => new { bc.BookID, bc.CategoryID });
 
-            modelBuilder.Entity<OrderItems>()
-               .HasKey(oi => new { oi.OrderID, oi.BookID });
+            // FK to Books
+            modelBuilder.Entity<BookAuthors>()
+                .HasOne(ba => ba.books)
+                .WithMany(b => b.BookAuthors)
+                .HasForeignKey(ba => ba.BookID);
+
+            // FK to Authors
+            modelBuilder.Entity<BookAuthors>()
+                .HasOne(ba => ba.authors)
+                .WithMany(a => a.BookAuthors)
+                .HasForeignKey(ba => ba.AuthorID);
+
+            modelBuilder.Entity<BookCategories>()
+               .HasKey(ba => new { ba.BookID, ba.CategoryID });
+
+            // FK to Books
+            modelBuilder.Entity<BookCategories>()
+                .HasOne(ba => ba.Books)
+                .WithMany(b => b.BookCategories)
+                .HasForeignKey(ba => ba.BookID);
+
+            // FK to Categorie
+            modelBuilder.Entity<BookCategories>()
+                .HasOne(ba => ba.Categories)
+                .WithMany(a => a.BookCategories)
+                .HasForeignKey(ba => ba.CategoryID);
 
             modelBuilder.Entity<Reviews>()
-               .HasKey(r => new { r.BookID, r.CustomerID });
+               .HasKey(ba => new { ba.BookID, ba.CustomerID });
+
+            // FK to Books
+            modelBuilder.Entity<Reviews>()
+                .HasOne(ba => ba.Books)
+                .WithMany(b => b.Reviews)
+                .HasForeignKey(ba => ba.BookID);
+
+            // FK to Customers
+            modelBuilder.Entity<Reviews>()
+                .HasOne(ba => ba.Customers)
+                .WithMany(a => a.Reviews)
+                .HasForeignKey(ba => ba.CustomerID);
+
+
+            modelBuilder.Entity<OrderItems>()
+              .HasKey(ba => new { ba.BookID, ba.OrderID});
+
+            // FK to Books
+            modelBuilder.Entity<OrderItems>()
+                .HasOne(ba => ba.Books)
+                .WithMany(b => b.OrderItems)
+                .HasForeignKey(ba => ba.BookID);
+
+            // FK to Customers
+            modelBuilder.Entity<OrderItems>()
+                .HasOne(ba => ba.Orders)
+                .WithMany(a => a.OrderItems)
+                .HasForeignKey(ba => ba.OrderID);
+
+            modelBuilder.Entity<Employees>()
+                .HasOne(e => e.Manager)
+                .WithMany()
+                .HasForeignKey(e => e.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict); 
         }
 
     }

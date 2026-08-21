@@ -53,6 +53,8 @@ namespace ERDCodeFirst.Migrations
 
                     b.HasKey("BookID", "AuthorID");
 
+                    b.HasIndex("AuthorID");
+
                     b.ToTable("BookAuthors");
                 });
 
@@ -66,16 +68,15 @@ namespace ERDCodeFirst.Migrations
 
                     b.HasKey("BookID", "CategoryID");
 
+                    b.HasIndex("CategoryID");
+
                     b.ToTable("BookCategories");
                 });
 
             modelBuilder.Entity("ERDCodeFirst.Domains.BookDetails", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("BookId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -88,7 +89,7 @@ namespace ERDCodeFirst.Migrations
                     b.Property<int>("PageCount")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("BookId");
 
                     b.ToTable("BookDetails");
                 });
@@ -111,6 +112,9 @@ namespace ERDCodeFirst.Migrations
                     b.Property<int>("PublisherID")
                         .HasColumnType("int");
 
+                    b.Property<int>("PublishersId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -119,6 +123,8 @@ namespace ERDCodeFirst.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PublishersId");
 
                     b.ToTable("Books");
                 });
@@ -184,20 +190,22 @@ namespace ERDCodeFirst.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ManagerId")
+                    b.Property<int?>("ManagerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("ERDCodeFirst.Domains.OrderItems", b =>
                 {
-                    b.Property<int>("OrderID")
+                    b.Property<int>("BookID")
                         .HasColumnType("int");
 
-                    b.Property<int>("BookID")
+                    b.Property<int>("OrderID")
                         .HasColumnType("int");
 
                     b.Property<int>("Quantity")
@@ -206,7 +214,9 @@ namespace ERDCodeFirst.Migrations
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("OrderID", "BookID");
+                    b.HasKey("BookID", "OrderID");
+
+                    b.HasIndex("OrderID");
 
                     b.ToTable("OrderItems");
                 });
@@ -222,6 +232,9 @@ namespace ERDCodeFirst.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
+                    b.Property<int>("CustomersId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
@@ -230,6 +243,8 @@ namespace ERDCodeFirst.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomersId");
 
                     b.ToTable("Orders");
                 });
@@ -275,16 +290,15 @@ namespace ERDCodeFirst.Migrations
 
                     b.HasKey("BookID", "CustomerID");
 
+                    b.HasIndex("CustomerID");
+
                     b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("ERDCodeFirst.Domains.ShippingAddress", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("CustomerId")
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AddressLine")
                         .IsRequired()
@@ -298,9 +312,183 @@ namespace ERDCodeFirst.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CustomerId");
 
                     b.ToTable("ShippingAddresses");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.BookAuthors", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Authors", "authors")
+                        .WithMany("BookAuthors")
+                        .HasForeignKey("AuthorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERDCodeFirst.Domains.Books", "books")
+                        .WithMany("BookAuthors")
+                        .HasForeignKey("BookID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("authors");
+
+                    b.Navigation("books");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.BookCategories", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Books", "Books")
+                        .WithMany("BookCategories")
+                        .HasForeignKey("BookID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERDCodeFirst.Domains.Categories", "Categories")
+                        .WithMany("BookCategories")
+                        .HasForeignKey("CategoryID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Books");
+
+                    b.Navigation("Categories");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.BookDetails", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Books", "Books")
+                        .WithOne("BookDetails")
+                        .HasForeignKey("ERDCodeFirst.Domains.BookDetails", "BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Books");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Books", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Publishers", "Publishers")
+                        .WithMany("Books")
+                        .HasForeignKey("PublishersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Publishers");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Employees", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Employees", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.OrderItems", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Books", "Books")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("BookID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERDCodeFirst.Domains.Orders", "Orders")
+                        .WithMany("OrderItems")
+                        .HasForeignKey("OrderID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Books");
+
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Orders", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Customers", "Customers")
+                        .WithMany("Orders")
+                        .HasForeignKey("CustomersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customers");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Reviews", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Books", "Books")
+                        .WithMany("Reviews")
+                        .HasForeignKey("BookID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ERDCodeFirst.Domains.Customers", "Customers")
+                        .WithMany("Reviews")
+                        .HasForeignKey("CustomerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Books");
+
+                    b.Navigation("Customers");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.ShippingAddress", b =>
+                {
+                    b.HasOne("ERDCodeFirst.Domains.Customers", "Customers")
+                        .WithOne("ShippingAddress")
+                        .HasForeignKey("ERDCodeFirst.Domains.ShippingAddress", "CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customers");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Authors", b =>
+                {
+                    b.Navigation("BookAuthors");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Books", b =>
+                {
+                    b.Navigation("BookAuthors");
+
+                    b.Navigation("BookCategories");
+
+                    b.Navigation("BookDetails")
+                        .IsRequired();
+
+                    b.Navigation("OrderItems");
+
+                    b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Categories", b =>
+                {
+                    b.Navigation("BookCategories");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Customers", b =>
+                {
+                    b.Navigation("Orders");
+
+                    b.Navigation("Reviews");
+
+                    b.Navigation("ShippingAddress")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Orders", b =>
+                {
+                    b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("ERDCodeFirst.Domains.Publishers", b =>
+                {
+                    b.Navigation("Books");
                 });
 #pragma warning restore 612, 618
         }

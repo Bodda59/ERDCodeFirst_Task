@@ -6,8 +6,12 @@ namespace ERDCodeFirst.Domains
     {
 
         public int BookID { get; set; }
+        public Books books { get; set; }
         public int AuthorID { get; set; }
+        public Authors authors { get; set; }
 
         
-    } 
+
+
+    }
 }
